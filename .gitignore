@@ -1,0 +1,16 @@
+# dependencies
+node_modules/
+
+# build output
+frontend/dist/
+backend/dist/
+
+# env
+.env
+.env.local
+
+# TypeScript
+*.tsbuildinfo
+
+# editor
+.DS_Store
