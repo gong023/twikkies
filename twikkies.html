@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>twikkies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@400;500;700&family=Zen+Old+Mincho:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   twikkies — design tokens & base styles
+   minimal · paper-memo · cool monotone + single amber accent
+   ============================================================ */
+
+:root {
+  --font-jp: "Zen Kaku Gothic New", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --bg:        oklch(0.974 0.003 255);
+  --surface:   #ffffff;
+  --surface-2: oklch(0.985 0.003 255);
+  --ink:       oklch(0.27 0.006 262);
+  --ink-2:     oklch(0.44 0.006 262);
+  --ink-3:     oklch(0.62 0.005 262);
+  --line:      oklch(0.915 0.004 262);
+  --line-2:    oklch(0.865 0.005 262);
+
+  --accent:     oklch(0.81 0.118 82);
+  --accent-2:   oklch(0.74 0.13 76);
+  --accent-ink: oklch(0.46 0.10 70);
+  --accent-wash: oklch(0.95 0.04 86);
+
+  --r-card: 12px;
+  --r-ctrl: 10px;
+  --r-pill: 999px;
+
+  --shadow-1: 0 1px 2px rgba(30,33,40,0.04);
+  --shadow-2: 0 4px 16px -6px rgba(30,33,40,0.14), 0 1px 3px rgba(30,33,40,0.05);
+  --shadow-pop: 0 18px 48px -12px rgba(28,30,38,0.30), 0 4px 12px rgba(28,30,38,0.10);
+
+  --card-border: 1px solid transparent;
+  --card-shadow: none;
+
+  --col-gap: 16px;
+  --col-w: 300px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-jp);
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "palt" 1;
+}
+
+#root { min-height: 100vh; }
+
+button { font-family: inherit; cursor: pointer; }
+input, textarea { font-family: inherit; }
+
+::selection { background: var(--accent-wash); }
+
+* { scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+*::-webkit-scrollbar { width: 9px; height: 9px; }
+*::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
+*::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+
+:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+
+.iconbtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px;
+  border: none; background: transparent; color: var(--ink-2);
+  border-radius: var(--r-pill);
+  transition: background .14s ease, color .14s ease;
+}
+.iconbtn:hover { background: oklch(0.93 0.004 262); color: var(--ink); }
+.iconbtn svg { width: 20px; height: 20px; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 34px; padding: 0 14px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 13px; font-weight: 500;
+  letter-spacing: .01em;
+  transition: all .14s ease;
+  white-space: nowrap;
+}
+.pill:hover { border-color: var(--ink-3); color: var(--ink); }
+.pill.is-active {
+  background: oklch(0.30 0.006 262);
+  border-color: oklch(0.30 0.006 262);
+  color: #fff;
+}
+.pill.is-accent.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: oklch(0.28 0.06 70);
+}
+.pill .mono { font-family: var(--font-mono); font-size: 12px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 40px; padding: 0 18px;
+  border-radius: var(--r-ctrl);
+  border: 1px solid transparent;
+  font-size: 14px; font-weight: 600;
+  white-space: nowrap;
+  transition: all .14s ease;
+}
+.btn-primary { background: var(--ink); color: #fff; }
+.btn-primary:hover { background: oklch(0.20 0.006 262); }
+.btn-accent { background: var(--accent); color: oklch(0.26 0.07 68); }
+.btn-accent:hover { background: var(--accent-2); }
+.btn-ghost { background: transparent; color: var(--ink-2); }
+.btn-ghost:hover { background: oklch(0.93 0.004 262); color: var(--ink); }
+.btn-outline { background: var(--surface); color: var(--ink); border-color: var(--line-2); }
+.btn-outline:hover { border-color: var(--ink-3); }
+.btn:disabled { opacity: .45; pointer-events: none; }
+
+.memo {
+  position: relative;
+  background: var(--surface);
+  border: var(--card-border);
+  box-shadow: var(--card-shadow);
+  border-radius: var(--r-card);
+  margin-bottom: var(--col-gap);
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  transition: box-shadow .16s ease, border-color .16s ease, transform .16s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+.memo:hover {
+  box-shadow: var(--shadow-2);
+  border-color: var(--line-2);
+}
+.memo:hover .memo-tools { opacity: 1; }
+.memo-body {
+  padding: 16px 16px 14px;
+  font-size: 14.5px;
+  line-height: 1.72;
+  color: var(--ink);
+  white-space: pre-wrap;
+  word-break: break-word;
+  letter-spacing: .005em;
+}
+.memo-meta {
+  padding: 0 16px 13px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .02em;
+  color: var(--ink-3);
+  display: flex; align-items: center; gap: 8px;
+}
+.memo-tools {
+  position: absolute; top: 7px; right: 7px;
+  opacity: 0;
+  transition: opacity .14s ease;
+}
+.memo-tools .iconbtn { width: 32px; height: 32px; background: color-mix(in oklab, var(--surface) 78%, transparent); backdrop-filter: blur(2px); }
+.memo-tools .iconbtn svg { width: 17px; height: 17px; }
+.memo-img {
+  width: 100%;
+  display: block;
+  border-bottom: 1px solid var(--line);
+}
+
+.imgph {
+  position: relative;
+  width: 100%;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    oklch(0.93 0.004 262) 0 10px,
+    oklch(0.955 0.003 262) 10px 20px
+  );
+  display: flex; align-items: center; justify-content: center;
+  border-bottom: 1px solid var(--line);
+}
+.imgph span {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: color-mix(in oklab, var(--surface) 70%, transparent);
+  padding: 4px 9px; border-radius: 6px;
+}
+
+.grid {
+  column-width: var(--col-w);
+  column-gap: var(--col-gap);
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 4px 24px 120px;
+}
+
+.field {
+  width: 100%;
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  border-radius: var(--r-ctrl);
+  padding: 11px 13px;
+  font-size: 14px;
+  color: var(--ink);
+  transition: border-color .14s ease, box-shadow .14s ease;
+}
+.field:focus { outline: none; border-color: var(--accent-2); box-shadow: 0 0 0 3px var(--accent-wash); }
+.field::placeholder { color: var(--ink-3); }
+
+.scrim {
+  position: fixed; inset: 0; z-index: 60;
+  background: oklch(0.22 0.01 262 / 0.34);
+  backdrop-filter: blur(3px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 7vh 20px 40px;
+  animation: fade .16s ease;
+}
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.985); } to { opacity: 1; transform: none; } }
+.sheet {
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: var(--shadow-pop);
+  width: 100%;
+  animation: pop .18s cubic-bezier(.2,.8,.3,1);
+}
+
+.toast-wrap {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+  z-index: 90; display: flex; flex-direction: column; gap: 8px; align-items: center;
+}
+.toast {
+  background: oklch(0.27 0.006 262); color: #fff;
+  padding: 11px 18px; border-radius: var(--r-pill);
+  font-size: 13.5px; font-weight: 500;
+  box-shadow: var(--shadow-pop);
+  display: flex; align-items: center; gap: 10px;
+  animation: toastin .22s cubic-bezier(.2,.8,.3,1);
+}
+.toast .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+@keyframes toastin { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.hr { height: 1px; background: var(--line); border: none; margin: 0; }
+
+.mono { font-family: var(--font-mono); }
+.muted { color: var(--ink-3); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<!-- plain data + helpers -->
+<script>
+/* ============================================================
+   twikkies — seed data + time helpers
+   exposes window.TW (data + utils)
+   ============================================================ */
+(function () {
+  const DAY = 86400000;
+  const NOW = new Date(2026, 5, 8, 21, 14).getTime(); // 2026-06-08
+
+  const d = (y, m, day, h = 10, min = 0) => new Date(y, m - 1, day, h, min).getTime();
+
+  let SEED = [
+    {
+      id: "m1",
+      text: "塩飽も鳴脇も即売会を「今回は見送ります」みたいな態度でいるのなんなん\nこない方がデフォになって何年たっとんねん。来なくなるのはいいよ。でも来なくなってるのを引きずってるのは意味わからん。キモい。じゃあ来いよ",
+      created: d(2026, 6, 7, 23, 41),
+      stats: { reposts: 38, likes: 412 },
+    },
+    {
+      id: "m2",
+      text: "巨乳から目を逸らす時目の縁じわっとなる",
+      created: d(2026, 6, 8, 8, 12),
+    },
+    {
+      id: "m3",
+      text: "「そういう人たちが一番」という常套句は「そういう人たちの方が却って」くらいの意味しかない\n言い手の事実を捻じ曲げたい気持ちが強すぎる",
+      created: d(2026, 6, 6, 14, 3),
+    },
+    {
+      id: "m4",
+      text: "昔塾の先生が「これってばさ」という喋り方をしていて、あれはナルトを真似て生徒を飽きさせない高度なコミュニケーションスキルだったんだなと思う\n「先生ナルト読んでるの！？」という脱線を許さないくらいさりげなかったので",
+      created: d(2026, 5, 8, 19, 30),
+    },
+    {
+      id: "m5",
+      text: "AI生成のキャラ設定全く守ってないエロ二次創作の裏に見え隠れする人、角刈りの弱者男性だったら嫌だ",
+      created: d(2026, 6, 1, 1, 22),
+    },
+    {
+      id: "m6",
+      text: "ゲームの人物に簡単に死ねていいねと呼びかける",
+      created: d(2026, 5, 20, 12, 50),
+    },
+    {
+      id: "m7",
+      text: "terrada art complex いってきた（2026/06/05）\n「展示見てください」ってアピール全然してなくて入るのに随分苦労した。作品搬入用のデカいエレベーターと来客用のが併用で「これ入っていいの！？」となる。階段もあるが各階セキュリティカードが必要で、最終的に外に出る扉を見つけるまで閉め出されたかと思った\n建物全体が業者向けかつおしゃれ。おしゃれには人を簡単に寄せ付けない効果があるな。デザインを読み取れない場合こちらに落ち度があるように思わされる。なるほど弱者には耐えられない\n作品、岡田乾二郎ってひと後智仁って人のが格好よかった",
+      created: d(2026, 6, 5, 17, 8),
+      image: { ph: true, label: "展示の写真", ratio: 0.42 },
+    },
+    {
+      id: "m8",
+      text: "好きって正義みたいで気持ち悪\nブルーピリオド",
+      created: d(2026, 4, 15, 22, 0),
+    },
+    {
+      id: "m9",
+      text: "言語化能力が低いことと自分が善いものであるという前提が強すぎることの相関性がある",
+      created: d(2026, 5, 9, 9, 41),
+      stats: { reposts: 5, likes: 73 },
+    },
+    {
+      id: "m10",
+      text: "夢で見た道、視力検査の気球に真っ直ぐな道",
+      created: d(2026, 3, 2, 6, 55),
+    },
+    {
+      id: "m11",
+      text: "この字あるんだ。了承\n上野の吉池B1F",
+      created: d(2026, 6, 4, 13, 20),
+      image: { ph: true, label: "店頭の貼り紙", ratio: 0.74 },
+    },
+    {
+      id: "m12",
+      text: "100日後に死ぬんじゃなくて、1%の確率で明日死ぬ\n毎日預金は10倍になる",
+      created: d(2026, 2, 10, 0, 30),
+    },
+    {
+      id: "m13",
+      text: "男性アイドルへの違和感\n感謝とか漢気とかの見せ方が上手くて、自分の感謝とか漢気とかがなかったものにされるように感じるのが嫌なんだと思う。勝手に相対的に悪者にされてる感じがする\n男が女性アイドルにそれを感じないのは、やっぱり同じ地平にいない生き物（アイドル）だと思ってるから。そういう意味で",
+      created: d(2025, 11, 20, 20, 12),
+    },
+    {
+      id: "m14",
+      text: "pull to refreshで更新（ただしゆっくり戻すとキャンセル）とかタップで選択、ただしそのまま長押しし続けると選択しない、とかその辺の機能使うたびにこの仕様を言語化した人は偉いなと思う",
+      created: d(2025, 8, 15, 16, 0),
+      stats: { reposts: 124, likes: 1530 },
+    },
+    {
+      id: "m15",
+      text: "仕事の愚痴を言うっていう感情が全く理解できなくて、じゃあ上司に言って解決策見出すか辞めるかしたらいいじゃんと思ってしまう",
+      created: d(2025, 6, 30, 18, 45),
+    },
+  ];
+
+  const ACCOUNTS = [
+    { id: "x1", platform: "x", handle: "@hibinokizuki", name: "日々の気付き" },
+    { id: "x2", platform: "x", handle: "@twikkies_alt", name: "メモ用サブ" },
+    { id: "bs1", platform: "bluesky", handle: "kizuki.bsky.social", name: "気付き" },
+    { id: "bs2", platform: "bluesky", handle: "memo.bsky.social", name: "メモ垢" },
+  ];
+
+  const startOfDay = (ts) => { const x = new Date(ts); x.setHours(0,0,0,0); return x.getTime(); };
+  const startOfMonth = (ts) => { const x = new Date(ts); x.setDate(1); x.setHours(0,0,0,0); return x.getTime(); };
+  const startOfYear = (ts) => { const x = new Date(ts); x.setMonth(0,1); x.setHours(0,0,0,0); return x.getTime(); };
+
+  function fmt(ts) {
+    const date = new Date(ts);
+    const ymd = `${date.getFullYear()}/${String(date.getMonth()+1).padStart(2,"0")}/${String(date.getDate()).padStart(2,"0")}`;
+    return { ymd };
+  }
+
+  function periodRange(key) {
+    const todayStart = startOfDay(NOW);
+    switch (key) {
+      case "yesterday":
+        return { from: todayStart - DAY, to: todayStart };
+      case "month-ago": {
+        const m = startOfMonth(NOW);
+        const prev = new Date(m); prev.setMonth(prev.getMonth() - 1);
+        return { from: prev.getTime(), to: m };
+      }
+      case "last-year": {
+        const y = startOfYear(NOW);
+        const prev = new Date(y); prev.setFullYear(prev.getFullYear() - 1);
+        return { from: prev.getTime(), to: y };
+      }
+      default:
+        return null;
+    }
+  }
+
+  function inRange(ts, range) {
+    if (!range) return true;
+    if (range.from != null && ts < range.from) return false;
+    if (range.to != null && ts >= range.to) return false;
+    return true;
+  }
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  const uid = () => "m" + Math.random().toString(36).slice(2, 9);
+
+  function genXStats() {
+    return { reposts: Math.floor(Math.random() * 12), likes: Math.floor(Math.random() * 60) + 3 };
+  }
+
+  window.TW = {
+    NOW, DAY, SEED, ACCOUNTS,
+    fmt, periodRange, inRange, shuffle, uid, genXStats,
+  };
+})();
+</script>
+
+<!-- shared UI primitives -->
+<script type="text/babel">
+/* ============================================================
+   twikkies — shared UI primitives
+   ============================================================ */
+const { useState, useEffect, useRef, useCallback } = React;
+
+function Icon({ name, size = 20, stroke = 1.7 }) {
+  const p = { fill: "none", stroke: "currentColor", strokeWidth: stroke, strokeLinecap: "round", strokeLinejoin: "round" };
+  const paths = {
+    search: <g {...p}><circle cx="11" cy="11" r="7" /><line x1="16.5" y1="16.5" x2="21" y2="21" /></g>,
+    close: <g {...p}><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></g>,
+    plus: <g {...p}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></g>,
+    more: <g fill="currentColor" stroke="none"><circle cx="12" cy="5" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="12" cy="19" r="1.6" /></g>,
+    image: <g {...p}><rect x="3" y="4" width="18" height="16" rx="2.5" /><circle cx="8.5" cy="9.5" r="1.6" /><path d="M3.5 17l4.8-4.6a2 2 0 0 1 2.7-.1L20.5 20" /></g>,
+    shuffle: <g {...p}><path d="M3 16h4l3-3M3 8h4l9 9h5M16 17l3 3M16 7l3-3M3 16h4" /><path d="M14 7h5M19 7l-2.5-2.5M19 7l-2.5 2.5M19 17l-2.5-2.5M19 17l-2.5 2.5" /></g>,
+    calendar: <g {...p}><rect x="3.5" y="5" width="17" height="16" rx="2.5" /><line x1="3.5" y1="9.5" x2="20.5" y2="9.5" /><line x1="8" y1="3" x2="8" y2="6.5" /><line x1="16" y1="3" x2="16" y2="6.5" /></g>,
+    trash: <g {...p}><path d="M4 7h16" /><path d="M9 7V5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 5v2" /><path d="M6 7l1 13.2A1.8 1.8 0 0 0 8.8 22h6.4a1.8 1.8 0 0 0 1.8-1.8L18 7" /></g>,
+    edit: <g {...p}><path d="M4 20h4L19 9a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4z" /><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" /></g>,
+    send: <g {...p}><path d="M21 4L11 14" /><path d="M21 4l-6.5 17-3.5-7.5L3.5 10 21 4z" /></g>,
+    check: <g {...p}><path d="M5 12.5l4.5 4.5L19 7" /></g>,
+    back: <g {...p}><path d="M15 5l-7 7 7 7" /></g>,
+    settings: <g {...p}><circle cx="12" cy="12" r="3.2" /><path d="M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6M18.4 18.4l-1.6-1.6M7.2 7.2L5.6 5.6" /></g>,
+    repost: <g {...p}><path d="M4 8.5l3-3 3 3" /><path d="M7 5.5V14a2 2 0 0 0 2 2h7" /><path d="M20 15.5l-3 3-3-3" /><path d="M17 18.5V10a2 2 0 0 0-2-2H8" /></g>,
+    heart: <g {...p}><path d="M12 20s-7-4.6-7-9.5A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7-2.5C19 11 12 20 12 20z" /></g>,
+    logout: <g {...p}><path d="M14 7V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" /><path d="M9 12h11M20 12l-3-3M20 12l-3 3" /></g>,
+    dice: <g {...p}><rect x="4" y="4" width="16" height="16" rx="3.5" /><circle cx="9" cy="9" r="1.2" fill="currentColor" stroke="none" /><circle cx="15" cy="15" r="1.2" fill="currentColor" stroke="none" /><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" /></g>,
+    lock: <g {...p}><rect x="5" y="11" width="14" height="9" rx="2.2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></g>,
+    user: <g {...p}><circle cx="12" cy="8" r="3.6" /><path d="M5 20a7 7 0 0 1 14 0" /></g>,
+    archive: <g {...p}><rect x="3.5" y="4" width="17" height="4" rx="1" /><path d="M5 8v10.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V8" /><path d="M10 12h4" /></g>,
+    restore: <g {...p}><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1" /><path d="M3 4.5V9h4.5" /></g>,
+  };
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" style={{ display: "block" }}>
+      {paths[name] || null}
+    </svg>
+  );
+}
+
+function PlatMark({ platform, size = 22 }) {
+  const isX = platform === "x";
+  return (
+    <span style={{
+      width: size, height: size, borderRadius: isX ? 6 : "50%",
+      background: isX ? "oklch(0.27 0.006 262)" : "oklch(0.62 0.13 248)",
+      color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center",
+      fontWeight: 800, fontSize: size * 0.56, flex: "0 0 auto", lineHeight: 1,
+      fontFamily: "var(--font-mono)",
+    }}>{isX ? "X" : "B"}</span>
+  );
+}
+
+function usePersistentState(key, initial) {
+  const [val, setVal] = useState(() => {
+    try { const r = localStorage.getItem(key); if (r != null) return JSON.parse(r); } catch (e) {}
+    return initial;
+  });
+  useEffect(() => {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+  }, [key, val]);
+  return [val, setVal];
+}
+
+function useEscape(onEsc) {
+  useEffect(() => {
+    const h = (e) => { if (e.key === "Escape") onEsc(); };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [onEsc]);
+}
+
+function useToasts() {
+  const [items, setItems] = useState([]);
+  const push = useCallback((msg) => {
+    const id = Math.random().toString(36).slice(2);
+    setItems((l) => [...l, { id, msg }]);
+    setTimeout(() => setItems((l) => l.filter((t) => t.id !== id)), 2600);
+  }, []);
+  const node = (
+    <div className="toast-wrap">
+      {items.map((t) => (
+        <div className="toast" key={t.id}><span className="dot" />{t.msg}</div>
+      ))}
+    </div>
+  );
+  return [push, node];
+}
+
+function Menu({ items, onClose, style }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, [onClose]);
+  useEscape(onClose);
+  return (
+    <div ref={ref} role="menu" style={{
+      position: "absolute", zIndex: 40, minWidth: 168,
+      background: "var(--surface)", border: "1px solid var(--line-2)",
+      borderRadius: 12, boxShadow: "var(--shadow-pop)", padding: 6,
+      animation: "pop .14s ease", ...style,
+    }}>
+      {items.map((it, i) => it.sep ? (
+        <div key={i} className="hr" style={{ margin: "5px 4px" }} />
+      ) : (
+        <button key={i} role="menuitem"
+          onClick={(e) => { e.stopPropagation(); onClose(); it.onClick && it.onClick(); }}
+          style={{
+            display: "flex", alignItems: "center", gap: 10, width: "100%",
+            padding: "9px 11px", border: "none", background: "transparent",
+            borderRadius: 8, fontSize: 13.5, fontWeight: 500,
+            color: it.danger ? "oklch(0.55 0.15 28)" : "var(--ink)", textAlign: "left",
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = it.danger ? "oklch(0.95 0.04 28)" : "oklch(0.95 0.004 262)"}
+          onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+        >
+          {it.icon && <span style={{ color: it.danger ? "oklch(0.55 0.15 28)" : "var(--ink-3)", display: "flex" }}><Icon name={it.icon} size={17} /></span>}
+          {it.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ConfirmDialog({ title, message, confirmLabel = "削除", cancelLabel = "キャンセル", danger = true, onConfirm, onClose }) {
+  useEscape(onClose);
+  return (
+    <div className="scrim" style={{ alignItems: "center", padding: "20px" }} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="sheet" style={{ maxWidth: 384, padding: "22px 22px 18px" }} onMouseDown={(e) => e.stopPropagation()}>
+        <h2 style={{ margin: "0 0 8px", fontSize: 16.5, fontWeight: 700 }}>{title}</h2>
+        {message && <p style={{ margin: "0 0 20px", fontSize: 13.5, lineHeight: 1.75, color: "var(--ink-2)" }}>{message}</p>}
+        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+          <button className="btn btn-ghost" style={{ height: 38 }} onClick={onClose}>{cancelLabel}</button>
+          <button className="btn" style={{ height: 38, background: danger ? "oklch(0.55 0.17 28)" : "var(--ink)", color: "#fff" }}
+            onClick={() => { onConfirm(); onClose(); }}>{confirmLabel}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { Icon, PlatMark, usePersistentState, useEscape, useToasts, Menu, ConfirmDialog });
+</script>
+
+<!-- login screen -->
+<script type="text/babel">
+/* ============================================================
+   twikkies — login
+   ============================================================ */
+const { useState: useStateLogin } = React;
+
+function Logo({ size = 28 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 11 }}>
+      <span style={{ position: "relative", width: size, height: size, flex: "0 0 auto" }}>
+        <span style={{
+          position: "absolute", inset: 0, borderRadius: 7,
+          background: "var(--accent)",
+          boxShadow: "inset 0 0 0 1px oklch(0.74 0.13 76 / .6)",
+        }} />
+        <span style={{
+          position: "absolute", right: 0, bottom: 0, width: "42%", height: "42%",
+          background: "linear-gradient(135deg, transparent 50%, var(--bg) 50%)",
+          borderBottomRightRadius: 7,
+        }} />
+      </span>
+      <span style={{ fontWeight: 700, fontSize: size * 0.72, letterSpacing: "-.01em", color: "var(--ink)" }}>twikkies</span>
+    </span>
+  );
+}
+
+function LoginScreen({ onLogin }) {
+  const [id, setId] = useStateLogin("");
+  const [pw, setPw] = useStateLogin("");
+  const [err, setErr] = useStateLogin("");
+  const [busy, setBusy] = useStateLogin(false);
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (!id.trim() || !pw.trim()) { setErr("IDとパスワードを入力してください"); return; }
+    if (pw.length < 4) { setErr("パスワードは4文字以上です"); return; }
+    setErr("");
+    setBusy(true);
+    setTimeout(() => onLogin(id.trim()), 480);
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "32px 20px", background: "var(--bg)" }}>
+      <div style={{ width: "100%", maxWidth: 380 }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 8 }}>
+          <Logo size={34} />
+        </div>
+        <p style={{ textAlign: "center", color: "var(--ink-3)", fontSize: 13.5, margin: "0 0 30px", lineHeight: 1.7 }}>
+          気づいたことを、ただ書きとめる。<br />あとで見返して、発見する。
+        </p>
+
+        <form onSubmit={submit} style={{
+          background: "var(--surface)", border: "1px solid var(--line)",
+          borderRadius: 16, padding: "26px 24px 24px", boxShadow: "var(--shadow-1)",
+        }}>
+          <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--ink-2)", marginBottom: 7, letterSpacing: ".02em" }}>ユーザーID</label>
+          <div style={{ position: "relative", marginBottom: 16 }}>
+            <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--ink-3)" }}><Icon name="user" size={18} /></span>
+            <input className="field" style={{ paddingLeft: 38 }} value={id} autoFocus
+              onChange={(e) => setId(e.target.value)} placeholder="your_id" autoComplete="username" />
+          </div>
+
+          <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--ink-2)", marginBottom: 7, letterSpacing: ".02em" }}>パスワード</label>
+          <div style={{ position: "relative", marginBottom: err ? 12 : 22 }}>
+            <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--ink-3)" }}><Icon name="lock" size={18} /></span>
+            <input className="field" style={{ paddingLeft: 38 }} type="password" value={pw}
+              onChange={(e) => setPw(e.target.value)} placeholder="••••••••" autoComplete="current-password" />
+          </div>
+
+          {err && <div style={{ color: "oklch(0.55 0.15 28)", fontSize: 12.5, marginBottom: 16 }}>{err}</div>}
+
+          <button className="btn btn-accent" type="submit" disabled={busy} style={{ width: "100%", height: 44 }}>
+            {busy ? "サインイン中…" : "サインイン"}
+          </button>
+
+          <div className="hr" style={{ margin: "20px 0 16px" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5 }}>
+            <a href="#" onClick={(e) => e.preventDefault()} style={{ color: "var(--ink-2)", textDecoration: "none" }}>新規登録</a>
+            <a href="#" onClick={(e) => e.preventDefault()} style={{ color: "var(--ink-3)", textDecoration: "none" }}>パスワードを忘れた</a>
+          </div>
+        </form>
+
+        <p className="mono" style={{ textAlign: "center", color: "var(--ink-3)", fontSize: 10.5, marginTop: 18, letterSpacing: ".04em" }}>
+          demo — 任意のID / 4文字以上のパスワードで入れます
+        </p>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { LoginScreen, Logo });
+</script>
+
+<!-- composer, memo card, masonry grid -->
+<script type="text/babel">
+/* ============================================================
+   twikkies — composer, memo card, masonry grid
+   ============================================================ */
+const { useState: useStateCards, useRef: useRefCards, useEffect: useEffectCards } = React;
+
+function Composer({ onCreate, accounts }) {
+  const [open, setOpen] = useStateCards(false);
+  const [text, setText] = useStateCards("");
+  const [img, setImg] = useStateCards(null);
+  const [targets, setTargets] = useStateCards([]);
+  const [showPost, setShowPost] = useStateCards(false);
+  const taRef = useRefCards(null);
+
+  useEffectCards(() => {
+    if (open && taRef.current) taRef.current.focus();
+  }, [open]);
+
+  const grow = (el) => { el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 320) + "px"; };
+
+  const reset = () => { setText(""); setImg(null); setTargets([]); setShowPost(false); setOpen(false); };
+  const commit = () => {
+    const t = text.trim();
+    if (t || img) {
+      const picked = accounts.filter((a) => targets.includes(a.id));
+      onCreate({ text: t, image: img }, picked);
+    }
+    reset();
+  };
+  const cancel = () => reset();
+  const toggleTarget = (id) => setTargets((l) => l.includes(id) ? l.filter((x) => x !== id) : [...l, id]);
+
+  return (
+    <div style={{ maxWidth: 632, margin: "26px auto 30px", padding: "0 24px" }}>
+      <div style={{
+        background: "var(--surface)", border: "1px solid var(--line-2)",
+        borderRadius: 14, boxShadow: open ? "var(--shadow-2)" : "var(--shadow-1)",
+        transition: "box-shadow .16s ease", overflow: "hidden",
+      }}>
+        {!open ? (
+          <button onClick={() => setOpen(true)} style={{
+            width: "100%", textAlign: "left", border: "none", background: "transparent",
+            padding: "16px 18px", color: "var(--ink-3)", fontSize: 15, display: "flex",
+            alignItems: "center", justifyContent: "space-between",
+          }}>
+            <span style={{ whiteSpace: "nowrap" }}>気づいたことをメモ…</span>
+            <span style={{ display: "flex", gap: 2, color: "var(--ink-3)" }}>
+              <span className="iconbtn" style={{ width: 34, height: 34 }} aria-hidden><Icon name="image" size={19} /></span>
+            </span>
+          </button>
+        ) : (
+          <div style={{ padding: 14 }}>
+            {img && (
+              <div className="imgph" style={{ aspectRatio: "16 / 7", borderRadius: 9, marginBottom: 10, borderBottom: "none", border: "1px solid var(--line)" }}>
+                <span>{img.label || "添付画像"}</span>
+                <button className="iconbtn" onClick={() => setImg(null)} style={{ position: "absolute", top: 6, right: 6, width: 28, height: 28, background: "color-mix(in oklab, var(--surface) 80%, transparent)" }}><Icon name="close" size={15} /></button>
+              </div>
+            )}
+            <textarea ref={taRef} className="field" value={text}
+              onInput={(e) => grow(e.target)}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="気づいたことをメモ…"
+              style={{ border: "none", padding: "4px 4px 8px", resize: "none", minHeight: 64, fontSize: 15, lineHeight: 1.7, boxShadow: "none" }}
+              onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") commit(); }}
+            />
+
+            <div style={{ marginTop: 4 }}>
+              <button onClick={() => setShowPost((v) => !v)} style={{
+                display: "inline-flex", alignItems: "center", gap: 7, border: "none", background: "transparent",
+                padding: "5px 2px", color: targets.length ? "var(--accent-ink)" : "var(--ink-3)", fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap",
+              }}>
+                <Icon name="send" size={15} />
+                {targets.length ? `${targets.length}件のアカウントに同時投稿` : "同時にSNSへ投稿"}
+                <span style={{ display: "inline-flex", transform: showPost ? "rotate(180deg)" : "none", transition: "transform .15s ease", color: "var(--ink-3)" }}>
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                </span>
+              </button>
+              {showPost && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 7, padding: "8px 2px 4px" }}>
+                  {accounts.map((a) => {
+                    const on = targets.includes(a.id);
+                    return (
+                      <button key={a.id} onClick={() => toggleTarget(a.id)} style={{
+                        display: "inline-flex", alignItems: "center", gap: 8, height: 34, padding: "0 11px 0 8px",
+                        borderRadius: 999, transition: "all .12s ease", whiteSpace: "nowrap",
+                        border: on ? "1.5px solid var(--accent-2)" : "1px solid var(--line-2)",
+                        background: on ? "var(--accent-wash)" : "var(--surface)",
+                      }}>
+                        <PlatMark platform={a.platform} size={20} />
+                        <span style={{ fontSize: 12.5, fontWeight: 600, color: "var(--ink)" }}>{a.name}</span>
+                        {on && <span style={{ color: "var(--accent-ink)", display: "flex" }}><Icon name="check" size={14} stroke={2.4} /></span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 8 }}>
+              <button className="iconbtn" title="画像を添付" onClick={() => setImg({ ph: true, label: "添付画像", ratio: 0.6 })}><Icon name="image" size={19} /></button>
+              <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                <span className="mono" style={{ fontSize: 11, color: "var(--ink-3)", marginRight: 4 }}>⌘↵ で保存</span>
+                <button className="btn btn-ghost" style={{ height: 36 }} onClick={cancel}>キャンセル</button>
+                <button className={"btn " + (targets.length ? "btn-accent" : "btn-primary")} style={{ height: 36 }} onClick={commit} disabled={!text.trim() && !img}>
+                  {targets.length ? "保存して投稿" : "保存"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function fmtCount(n) {
+  if (n >= 10000) return (n / 1000).toFixed(0) + "K";
+  if (n >= 1000) return (n / 1000).toFixed(1) + "K";
+  return String(n);
+}
+
+function highlight(text, q) {
+  if (!q) return text;
+  const idx = text.toLowerCase().indexOf(q.toLowerCase());
+  if (idx === -1) return text;
+  const parts = [];
+  let i = 0, lower = text.toLowerCase(), ql = q.toLowerCase();
+  while (true) {
+    const at = lower.indexOf(ql, i);
+    if (at === -1) { parts.push(text.slice(i)); break; }
+    parts.push(text.slice(i, at));
+    parts.push(<mark key={at} style={{ background: "var(--accent-wash)", color: "inherit", borderRadius: 3, padding: "0 1px" }}>{text.slice(at, at + q.length)}</mark>);
+    i = at + q.length;
+  }
+  return parts;
+}
+
+function MemoCard({ memo, query, onOpen, onPost, onArchive }) {
+  const [menu, setMenu] = useStateCards(false);
+  const meta = window.TW.fmt(memo.created);
+
+  return (
+    <article className="memo" onClick={() => onOpen(memo)}>
+      {memo.image && (
+        <div className="imgph" style={{ aspectRatio: `1 / ${memo.image.ratio || 0.6}` }}>
+          <span>{memo.image.label || "画像"}</span>
+        </div>
+      )}
+      <div className="memo-body">{highlight(memo.text, query)}</div>
+      <div className="memo-meta">
+        <span>{meta.ymd}</span>
+        {memo.stats && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 12, marginLeft: "auto" }} title="Xでの反応">
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <Icon name="repost" size={13} /><span>{fmtCount(memo.stats.reposts)}</span>
+            </span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <Icon name="heart" size={13} /><span>{fmtCount(memo.stats.likes)}</span>
+            </span>
+          </span>
+        )}
+      </div>
+
+      <div className="memo-tools" onClick={(e) => e.stopPropagation()}>
+        <button className="iconbtn" title="投稿" onClick={() => onPost(memo)}><Icon name="send" size={17} /></button>
+        <button className="iconbtn" title="その他" onClick={() => setMenu((v) => !v)} style={{ position: "relative" }}><Icon name="more" size={17} /></button>
+      </div>
+      {menu && (
+        <div onClick={(e) => e.stopPropagation()}>
+          <Menu onClose={() => setMenu(false)} style={{ top: 40, right: 8 }} items={[
+            { label: "編集", icon: "edit", onClick: () => onOpen(memo) },
+            { label: "X / Blueskyに投稿", icon: "send", onClick: () => onPost(memo) },
+            { sep: true },
+            { label: "アーカイブ", icon: "archive", onClick: () => onArchive(memo) },
+          ]} />
+        </div>
+      )}
+    </article>
+  );
+}
+
+function MemoGrid({ memos, query, onOpen, onPost, onArchive, emptyNote }) {
+  if (!memos.length) {
+    return (
+      <div style={{ textAlign: "center", padding: "90px 20px", color: "var(--ink-3)" }}>
+        <div style={{ display: "inline-flex", marginBottom: 14, opacity: .5 }}><Icon name="search" size={34} stroke={1.4} /></div>
+        <p style={{ fontSize: 14.5, margin: 0 }}>{emptyNote || "メモが見つかりませんでした"}</p>
+      </div>
+    );
+  }
+  return (
+    <div className="grid">
+      {memos.map((m) => (
+        <MemoCard key={m.id} memo={m} query={query} onOpen={onOpen} onPost={onPost} onArchive={onArchive} />
+      ))}
+    </div>
+  );
+}
+
+Object.assign(window, { Composer, MemoCard, MemoGrid, highlight, fmtCount });
+</script>
+
+<!-- editor modal, post dialog, archive modal -->
+<script type="text/babel">
+/* ============================================================
+   twikkies — editor modal + post dialog + archive modal
+   ============================================================ */
+const { useState: useStateD, useRef: useRefD, useEffect: useEffectD } = React;
+
+function EditorModal({ memo, onSave, onArchive, onPost, onClose }) {
+  const [text, setText] = useStateD(memo.text);
+  const [img, setImg] = useStateD(memo.image || null);
+  const taRef = useRefD(null);
+  useEscape(onClose);
+
+  useEffectD(() => {
+    const el = taRef.current;
+    if (el) { el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 420) + "px"; el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+  }, []);
+
+  const grow = (el) => { el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 420) + "px"; };
+  const save = () => { onSave({ ...memo, text: text.trim(), image: img }); onClose(); };
+  const meta = window.TW.fmt(memo.created);
+
+  return (
+    <div className="scrim" onMouseDown={(e) => { if (e.target === e.currentTarget) save(); }}>
+      <div className="sheet" style={{ maxWidth: 600 }} onMouseDown={(e) => e.stopPropagation()}>
+        {img && (
+          <div className="imgph" style={{ aspectRatio: `1 / ${Math.min(img.ratio || 0.5, 0.5)}`, borderRadius: "16px 16px 0 0" }}>
+            <span>{img.label || "画像"}</span>
+            <button className="iconbtn" onClick={() => setImg(null)} style={{ position: "absolute", top: 8, right: 8, width: 30, height: 30, background: "color-mix(in oklab, var(--surface) 82%, transparent)" }}><Icon name="close" size={16} /></button>
+          </div>
+        )}
+        <div style={{ padding: "20px 22px 6px" }}>
+          <textarea ref={taRef} className="field" value={text}
+            onInput={(e) => grow(e.target)} onChange={(e) => setText(e.target.value)}
+            style={{ border: "none", padding: 0, resize: "none", fontSize: 15.5, lineHeight: 1.78, boxShadow: "none", minHeight: 80 }}
+            onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") save(); }}
+          />
+        </div>
+        <div className="memo-meta" style={{ padding: "8px 22px 16px" }}>
+          <Icon name="calendar" size={13} /> <span>{meta.ymd}</span><span style={{ opacity: .5 }}>·</span><span>作成日</span>
+        </div>
+        <div className="hr" />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px" }}>
+          <div style={{ display: "flex", gap: 4 }}>
+            <button className="iconbtn" title="投稿" onClick={() => onPost(memo)}><Icon name="send" size={18} /></button>
+            <button className="iconbtn" title="アーカイブ" onClick={() => { onArchive(memo); onClose(); }}><Icon name="archive" size={18} /></button>
+          </div>
+          <button className="btn btn-primary" style={{ height: 38 }} onClick={save}>完了</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const LIMITS = { x: 280, bluesky: 300 };
+const PLAT_LABEL = { x: "X", bluesky: "Bluesky" };
+
+function PostDialog({ memo, accounts, onClose, onPosted }) {
+  const [platform, setPlatform] = useStateD("x");
+  const [picked, setPicked] = useStateD(() => {
+    const init = {};
+    accounts.forEach((a) => { if (init[a.platform] === undefined) init[a.platform] = a.id; });
+    return init["x"] ? { x: [init["x"]] } : {};
+  });
+  const [text, setText] = useStateD(memo.text);
+  const [busy, setBusy] = useStateD(false);
+  useEscape(onClose);
+
+  const list = accounts.filter((a) => a.platform === platform);
+  const sel = picked[platform] || [];
+  const limit = LIMITS[platform];
+  const over = text.length - limit;
+
+  const toggle = (id) => {
+    setPicked((p) => {
+      const cur = new Set(p[platform] || []);
+      cur.has(id) ? cur.delete(id) : cur.add(id);
+      return { ...p, [platform]: [...cur] };
+    });
+  };
+
+  const totalSelected = Object.values(picked).reduce((n, arr) => n + (arr ? arr.length : 0), 0);
+  const canPost = totalSelected > 0 && text.trim() && over <= 0;
+
+  const post = () => {
+    setBusy(true);
+    const targets = [];
+    Object.entries(picked).forEach(([plat, ids]) => (ids || []).forEach((id) => {
+      const acc = accounts.find((a) => a.id === id);
+      if (acc) targets.push(acc);
+    }));
+    setTimeout(() => { onPosted(targets); onClose(); }, 560);
+  };
+
+  const counterColor = over > 0 ? "oklch(0.55 0.16 28)" : over > -20 ? "var(--accent-ink)" : "var(--ink-3)";
+
+  return (
+    <div className="scrim" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="sheet" style={{ maxWidth: 480 }} onMouseDown={(e) => e.stopPropagation()}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px" }}>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>投稿する</h2>
+          <button className="iconbtn" onClick={onClose} style={{ width: 32, height: 32 }}><Icon name="close" size={17} /></button>
+        </div>
+
+        <div style={{ display: "flex", gap: 8, padding: "0 18px 14px" }}>
+          {["x", "bluesky"].map((pl) => {
+            const n = (picked[pl] || []).length;
+            const active = platform === pl;
+            return (
+              <button key={pl} onClick={() => setPlatform(pl)} style={{
+                flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
+                height: 44, borderRadius: 11, fontSize: 14, fontWeight: 600,
+                border: active ? "1.5px solid var(--ink)" : "1px solid var(--line-2)",
+                background: active ? "var(--surface-2)" : "var(--surface)",
+                color: active ? "var(--ink)" : "var(--ink-2)",
+              }}>
+                <PlatMark platform={pl} size={20} />
+                {PLAT_LABEL[pl]}
+                {n > 0 && <span className="mono" style={{ fontSize: 11, background: "var(--accent)", color: "oklch(0.28 0.06 70)", borderRadius: 999, padding: "1px 7px" }}>{n}</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{ padding: "0 18px" }}>
+          <div style={{ fontSize: 11.5, fontWeight: 600, color: "var(--ink-3)", letterSpacing: ".04em", marginBottom: 8, textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>
+            アカウント（複数選択可）
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+            {list.map((a) => {
+              const on = sel.includes(a.id);
+              return (
+                <button key={a.id} onClick={() => toggle(a.id)} style={{
+                  display: "flex", alignItems: "center", gap: 11, width: "100%",
+                  padding: "10px 12px", borderRadius: 11, textAlign: "left",
+                  border: on ? "1.5px solid var(--accent-2)" : "1px solid var(--line-2)",
+                  background: on ? "var(--accent-wash)" : "var(--surface)",
+                  transition: "all .12s ease",
+                }}>
+                  <PlatMark platform={a.platform} size={28} />
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: "block", fontSize: 13.5, fontWeight: 600, color: "var(--ink)" }}>{a.name}</span>
+                    <span className="mono" style={{ display: "block", fontSize: 11.5, color: "var(--ink-3)" }}>{a.platform === "x" ? a.handle : "@" + a.handle}</span>
+                  </span>
+                  <span style={{
+                    width: 22, height: 22, borderRadius: 6, flex: "0 0 auto",
+                    border: on ? "none" : "1.5px solid var(--line-2)",
+                    background: on ? "var(--accent)" : "transparent",
+                    color: "oklch(0.28 0.06 70)", display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>{on && <Icon name="check" size={15} stroke={2.4} />}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div style={{ padding: "16px 18px 4px" }}>
+          <textarea className="field" value={text} onChange={(e) => setText(e.target.value)}
+            style={{ resize: "vertical", minHeight: 92, fontSize: 14.5, lineHeight: 1.7 }} />
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}>
+            <span className="mono" style={{ fontSize: 12, color: counterColor }}>
+              {text.length} / {limit}
+            </span>
+          </div>
+        </div>
+
+        <div className="hr" style={{ marginTop: 8 }} />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 18px" }}>
+          <span className="mono" style={{ fontSize: 11.5, color: "var(--ink-3)" }}>
+            {totalSelected > 0 ? `${totalSelected}件のアカウントに投稿` : "アカウントを選択"}
+          </span>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="btn btn-ghost" style={{ height: 38 }} onClick={onClose}>キャンセル</button>
+            <button className="btn btn-accent" style={{ height: 38 }} disabled={!canPost || busy} onClick={post}>
+              {busy ? "投稿中…" : "投稿する"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ArchiveModal({ archived, onRestore, onPurge, onPurgeAll, onClose }) {
+  const [confirm, setConfirm] = useStateD(null);
+  useEscape(onClose);
+
+  return (
+    <div className="scrim" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="sheet" style={{ maxWidth: 560, display: "flex", flexDirection: "column", maxHeight: "84vh" }} onMouseDown={(e) => e.stopPropagation()}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ color: "var(--ink-2)", display: "flex" }}><Icon name="archive" size={20} /></span>
+            <h2 style={{ margin: 0, fontSize: 16.5, fontWeight: 700 }}>アーカイブ</h2>
+            <span className="mono" style={{ fontSize: 11.5, color: "var(--ink-3)" }}>{archived.length} 件</span>
+          </div>
+          <button className="iconbtn" onClick={onClose} style={{ width: 32, height: 32 }}><Icon name="close" size={17} /></button>
+        </div>
+        <div className="hr" />
+
+        <div style={{ overflow: "auto", padding: archived.length ? "8px 12px" : "0" }}>
+          {!archived.length ? (
+            <div style={{ textAlign: "center", padding: "70px 20px", color: "var(--ink-3)" }}>
+              <div style={{ display: "inline-flex", marginBottom: 12, opacity: .45 }}><Icon name="archive" size={32} stroke={1.4} /></div>
+              <p style={{ fontSize: 14, margin: 0 }}>アーカイブは空です</p>
+              <p style={{ fontSize: 12.5, margin: "6px 0 0", color: "var(--ink-3)" }}>一覧から外したメモはここに保管されます</p>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {archived.map((m) => {
+                const meta = window.TW.fmt(m.created);
+                return (
+                  <div key={m.id} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "11px 10px", borderRadius: 10, border: "1px solid var(--line)" }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{
+                        margin: 0, fontSize: 13.5, lineHeight: 1.65, color: "var(--ink)",
+                        display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+                      }}>{m.text}</p>
+                      <span className="mono" style={{ fontSize: 10.5, color: "var(--ink-3)" }}>{meta.ymd}</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 4, flex: "0 0 auto" }}>
+                      <button className="pill" style={{ height: 32 }} onClick={() => onRestore(m)}>
+                        <Icon name="restore" size={14} /> 元に戻す
+                      </button>
+                      <button className="iconbtn" style={{ width: 32, height: 32 }} title="完全に削除"
+                        onClick={() => setConfirm({ kind: "one", memo: m })}><Icon name="trash" size={16} /></button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {archived.length > 0 && (
+          <>
+            <div className="hr" />
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 18px" }}>
+              <span className="mono" style={{ fontSize: 11.5, color: "var(--ink-3)" }}>完全に削除すると元に戻せません</span>
+              <button className="btn btn-ghost" style={{ height: 36, color: "oklch(0.55 0.16 28)" }} onClick={() => setConfirm({ kind: "all" })}>
+                <Icon name="trash" size={16} /> アーカイブを空にする
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+
+      {confirm && confirm.kind === "one" && (
+        <ConfirmDialog
+          title="このメモを完全に削除しますか？"
+          message="この操作は取り消せません。メモは復元できなくなります。"
+          confirmLabel="完全に削除" onClose={() => setConfirm(null)}
+          onConfirm={() => onPurge(confirm.memo)} />
+      )}
+      {confirm && confirm.kind === "all" && (
+        <ConfirmDialog
+          title="アーカイブを空にしますか？"
+          message={`${archived.length} 件のメモをすべて完全に削除します。この操作は取り消せません。`}
+          confirmLabel="すべて完全に削除" onClose={() => setConfirm(null)}
+          onConfirm={onPurgeAll} />
+      )}
+    </div>
+  );
+}
+
+Object.assign(window, { EditorModal, PostDialog, ArchiveModal });
+</script>
+
+<!-- top bar, filter bar -->
+<script type="text/babel">
+/* ============================================================
+   twikkies — top bar, period filter bar
+   ============================================================ */
+const { useState: useStateT, useRef: useRefT } = React;
+
+function TopBar({ query, onQuery, userId, onLogout, onManageAccounts, onShowArchive, archivedCount }) {
+  const [umenu, setUmenu] = useStateT(false);
+  return (
+    <header style={{
+      position: "sticky", top: 0, zIndex: 30,
+      background: "color-mix(in oklab, var(--bg) 86%, transparent)",
+      backdropFilter: "blur(10px)",
+      borderBottom: "1px solid var(--line)",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "10px 18px", maxWidth: 1320, margin: "0 auto" }}>
+        <div style={{ flex: "0 0 auto" }}><Logo size={26} /></div>
+
+        <div style={{ flex: 1, maxWidth: 560, margin: "0 auto", position: "relative" }}>
+          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--ink-3)" }}><Icon name="search" size={18} /></span>
+          <input
+            value={query} onChange={(e) => onQuery(e.target.value)}
+            placeholder="メモを検索…"
+            style={{
+              width: "100%", height: 42, paddingLeft: 42, paddingRight: query ? 40 : 14,
+              border: "1px solid transparent", borderRadius: 999,
+              background: "oklch(0.945 0.004 262)", fontSize: 14, color: "var(--ink)",
+              transition: "background .14s, border-color .14s",
+            }}
+            onFocus={(e) => { e.target.style.background = "var(--surface)"; e.target.style.borderColor = "var(--line-2)"; }}
+            onBlur={(e) => { e.target.style.background = "oklch(0.945 0.004 262)"; e.target.style.borderColor = "transparent"; }}
+          />
+          {query && (
+            <button className="iconbtn" onClick={() => onQuery("")} style={{ position: "absolute", right: 4, top: "50%", transform: "translateY(-50%)", width: 32, height: 32 }}><Icon name="close" size={16} /></button>
+          )}
+        </div>
+
+        <div style={{ flex: "0 0 auto", position: "relative" }}>
+          <button onClick={() => setUmenu((v) => !v)} style={{
+            width: 38, height: 38, borderRadius: "50%", border: "1px solid var(--line-2)",
+            background: "var(--accent)", color: "oklch(0.28 0.06 70)", fontWeight: 700,
+            fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center",
+            fontFamily: "var(--font-mono)", textTransform: "uppercase",
+          }} title={userId}>{(userId || "u").slice(0, 1)}</button>
+          {umenu && (
+            <Menu onClose={() => setUmenu(false)} style={{ top: 46, right: 0, minWidth: 200 }} items={[
+              { label: userId || "ユーザー", icon: "user" },
+              { sep: true },
+              { label: `アーカイブ${archivedCount ? `（${archivedCount}）` : ""}`, icon: "archive", onClick: onShowArchive },
+              { label: "投稿アカウント設定", icon: "settings", onClick: onManageAccounts },
+              { sep: true },
+              { label: "ログアウト", icon: "logout", onClick: onLogout },
+            ]} />
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}
+
+const PERIODS = [
+  { key: "yesterday", label: "昨日" },
+  { key: "month-ago", label: "1ヶ月前" },
+  { key: "last-year", label: "去年" },
+];
+
+function FilterBar({ period, onPeriod, custom, onCustom, random, onRandom, onReshuffle }) {
+  const [showRange, setShowRange] = useStateT(false);
+
+  return (
+    <div style={{ maxWidth: 1320, margin: "0 auto", padding: "14px 24px 2px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap" }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--ink-3)", marginRight: 2 }}>
+          <Icon name="calendar" size={16} />
+          <span className="mono" style={{ fontSize: 11, letterSpacing: ".06em", textTransform: "uppercase" }}>期間</span>
+        </span>
+        {PERIODS.map((p) => (
+          <button key={p.key} className={"pill is-accent" + (period === p.key && !custom ? " is-active" : "")}
+            onClick={() => { onPeriod(period === p.key ? null : p.key); }}>
+            {p.label}
+          </button>
+        ))}
+
+        <div style={{ position: "relative" }}>
+          <button className={"pill" + (custom ? " is-active" : "")} onClick={() => setShowRange((v) => !v)}>
+            {custom ? `${custom.from || "…"} → ${custom.to || "…"}` : "期間を指定"}
+          </button>
+          {showRange && (
+            <RangePicker
+              value={custom}
+              onClose={() => setShowRange(false)}
+              onApply={(r) => { onCustom(r); setShowRange(false); }}
+              onClear={() => { onCustom(null); setShowRange(false); }}
+            />
+          )}
+        </div>
+
+        <div style={{ width: 1, height: 24, background: "var(--line-2)", margin: "0 4px" }} />
+
+        <button className={"pill is-accent" + (random ? " is-active" : "")} onClick={onRandom}>
+          <Icon name="dice" size={15} /> ランダム表示
+        </button>
+        {random && (
+          <button className="pill" onClick={onReshuffle} title="シャッフルし直す">
+            <Icon name="shuffle" size={15} /> 引き直す
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function RangePicker({ value, onApply, onClear, onClose }) {
+  const [from, setFrom] = useStateT(value?.from || "");
+  const [to, setTo] = useStateT(value?.to || "");
+  const ref = useRefT(null);
+  React.useEffect(() => {
+    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, [onClose]);
+
+  return (
+    <div ref={ref} style={{
+      position: "absolute", top: 42, left: 0, zIndex: 40, width: 248,
+      background: "var(--surface)", border: "1px solid var(--line-2)", borderRadius: 12,
+      boxShadow: "var(--shadow-pop)", padding: 14, animation: "pop .14s ease",
+    }}>
+      <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink-3)", marginBottom: 5, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: ".04em" }}>開始</label>
+      <input type="date" className="field" value={from} max={to || undefined} onChange={(e) => setFrom(e.target.value)} style={{ marginBottom: 12, padding: "8px 10px" }} />
+      <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink-3)", marginBottom: 5, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: ".04em" }}>終了</label>
+      <input type="date" className="field" value={to} min={from || undefined} onChange={(e) => setTo(e.target.value)} style={{ marginBottom: 14, padding: "8px 10px" }} />
+      <div style={{ display: "flex", gap: 8 }}>
+        <button className="btn btn-ghost" style={{ height: 34, flex: 1 }} onClick={onClear}>クリア</button>
+        <button className="btn btn-primary" style={{ height: 34, flex: 1 }} disabled={!from && !to} onClick={() => onApply({ from, to })}>適用</button>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { TopBar, FilterBar });
+</script>
+
+<!-- app root -->
+<script type="text/babel">
+/* ============================================================
+   twikkies — App root
+   ============================================================ */
+const { useState: useStateApp, useMemo, useEffect: useEffectApp } = React;
+
+// confirmed design: gothic / amber / flat / roomy / paper
+const TWEAK = {
+  font: '"Zen Kaku Gothic New", system-ui, sans-serif',
+  bg: "oklch(0.965 0.012 86)",
+  colW: "300px",
+};
+
+function applyDesign() {
+  const r = document.documentElement.style;
+  r.setProperty("--font-jp", TWEAK.font);
+  r.setProperty("--bg", TWEAK.bg);
+  r.setProperty("--col-w", TWEAK.colW);
+  // flat cards: no border, no shadow
+  r.setProperty("--card-border", "1px solid transparent");
+  r.setProperty("--card-shadow", "none");
+}
+
+function AccountsModal({ accounts, setAccounts, onClose }) {
+  const [adding, setAdding] = useStateApp(null);
+  const [name, setName] = useStateApp("");
+  const [handle, setHandle] = useStateApp("");
+  useEscape(onClose);
+
+  const add = () => {
+    if (!name.trim() || !handle.trim()) return;
+    setAccounts([...accounts, { id: "a" + Math.random().toString(36).slice(2, 8), platform: adding, name: name.trim(), handle: handle.trim().replace(/^@/, "") }]);
+    setName(""); setHandle(""); setAdding(null);
+  };
+  const remove = (id) => setAccounts(accounts.filter((a) => a.id !== id));
+  const group = (pl) => accounts.filter((a) => a.platform === pl);
+
+  return (
+    <div className="scrim" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="sheet" style={{ maxWidth: 460 }} onMouseDown={(e) => e.stopPropagation()}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px" }}>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>投稿アカウント</h2>
+          <button className="iconbtn" onClick={onClose} style={{ width: 32, height: 32 }}><Icon name="close" size={17} /></button>
+        </div>
+        <div className="hr" />
+        <div style={{ padding: "14px 18px 18px", maxHeight: "62vh", overflow: "auto" }}>
+          {["x", "bluesky"].map((pl) => (
+            <div key={pl} style={{ marginBottom: 18 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 10 }}>
+                <PlatMark platform={pl} size={22} />
+                <span style={{ fontSize: 14, fontWeight: 700 }}>{pl === "x" ? "X" : "Bluesky"}</span>
+                <span className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>{group(pl).length} アカウント</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                {group(pl).map((a) => (
+                  <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 11px", border: "1px solid var(--line-2)", borderRadius: 10 }}>
+                    <PlatMark platform={pl} size={26} />
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: "block", fontSize: 13, fontWeight: 600 }}>{a.name}</span>
+                      <span className="mono" style={{ display: "block", fontSize: 11.5, color: "var(--ink-3)" }}>{pl === "x" ? a.handle.replace(/^@?/, "@") : "@" + a.handle}</span>
+                    </span>
+                    <button className="iconbtn" style={{ width: 30, height: 30 }} onClick={() => remove(a.id)} title="削除"><Icon name="trash" size={16} /></button>
+                  </div>
+                ))}
+                {adding === pl ? (
+                  <div style={{ border: "1px dashed var(--line-2)", borderRadius: 10, padding: 11, display: "flex", flexDirection: "column", gap: 8 }}>
+                    <input className="field" placeholder="表示名" value={name} onChange={(e) => setName(e.target.value)} style={{ padding: "8px 10px" }} autoFocus />
+                    <input className="field" placeholder={pl === "x" ? "@handle" : "name.bsky.social"} value={handle} onChange={(e) => setHandle(e.target.value)} style={{ padding: "8px 10px" }} />
+                    <div style={{ display: "flex", gap: 7, justifyContent: "flex-end" }}>
+                      <button className="btn btn-ghost" style={{ height: 32 }} onClick={() => { setAdding(null); setName(""); setHandle(""); }}>やめる</button>
+                      <button className="btn btn-primary" style={{ height: 32 }} onClick={add} disabled={!name.trim() || !handle.trim()}>追加</button>
+                    </div>
+                  </div>
+                ) : (
+                  <button className="pill" style={{ alignSelf: "flex-start", height: 34 }} onClick={() => setAdding(pl)}>
+                    <Icon name="plus" size={15} /> アカウントを追加
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  useEffectApp(() => applyDesign(), []);
+
+  const [userId, setUserId] = usePersistentState("twikkies.user", null);
+  const [memos, setMemos] = usePersistentState("twikkies.memos.v2", window.TW.SEED);
+  const [accounts, setAccounts] = usePersistentState("twikkies.accounts", window.TW.ACCOUNTS);
+
+  const [query, setQuery] = useStateApp("");
+  const [period, setPeriod] = useStateApp(null);
+  const [custom, setCustom] = useStateApp(null);
+  const [random, setRandom] = useStateApp(false);
+  const [shuffleKey, setShuffleKey] = useStateApp(0);
+
+  const [editing, setEditing] = useStateApp(null);
+  const [posting, setPosting] = useStateApp(null);
+  const [showAccounts, setShowAccounts] = useStateApp(false);
+  const [showArchive, setShowArchive] = useStateApp(false);
+
+  const [pushToast, toastNode] = useToasts();
+
+  const archivedList = useMemo(
+    () => memos.filter((m) => m.archived).sort((a, b) => (b.archivedAt || 0) - (a.archivedAt || 0)),
+    [memos]
+  );
+
+  const filtered = useMemo(() => {
+    let list = memos.filter((m) => !m.archived).sort((a, b) => b.created - a.created);
+    const q = query.trim().toLowerCase();
+    if (q) list = list.filter((m) => m.text.toLowerCase().includes(q));
+    if (custom) {
+      const from = custom.from ? new Date(custom.from + "T00:00:00").getTime() : null;
+      const to = custom.to ? new Date(custom.to + "T23:59:59").getTime() : null;
+      list = list.filter((m) => (from == null || m.created >= from) && (to == null || m.created <= to));
+    } else if (period) {
+      const range = window.TW.periodRange(period);
+      list = list.filter((m) => window.TW.inRange(m.created, range));
+    }
+    return list;
+  }, [memos, query, period, custom]);
+
+  const display = useMemo(() => {
+    if (!random) return filtered;
+    return window.TW.shuffle(filtered);
+    // eslint-disable-next-line
+  }, [filtered, random, shuffleKey]);
+
+  const filtering = !!(query.trim() || period || custom);
+
+  const create = (data, postTargets) => {
+    const postedToX = postTargets && postTargets.some((a) => a.platform === "x");
+    const m = { id: window.TW.uid(), text: data.text, created: Date.now(), image: data.image || undefined };
+    if (postedToX) m.stats = window.TW.genXStats();
+    setMemos((l) => [m, ...l]);
+    if (postTargets && postTargets.length) {
+      pushToast(`メモを追加し、${postTargets.length}件に投稿しました（デモ）`);
+    } else {
+      pushToast("メモを追加しました");
+    }
+  };
+  const saveMemo = (m) => setMemos((l) => l.map((x) => x.id === m.id ? { ...m, image: m.image || undefined } : x));
+  const archiveMemo = (m) => {
+    setMemos((l) => l.map((x) => x.id === m.id ? { ...x, archived: true, archivedAt: Date.now() } : x));
+    pushToast("アーカイブしました");
+  };
+  const restoreMemo = (m) => {
+    setMemos((l) => l.map((x) => x.id === m.id ? (() => { const { archived, archivedAt, ...rest } = x; return rest; })() : x));
+    pushToast("元に戻しました");
+  };
+  const purgeMemo = (m) => { setMemos((l) => l.filter((x) => x.id !== m.id)); pushToast("完全に削除しました"); };
+  const purgeAllArchived = () => {
+    setMemos((l) => l.filter((x) => !x.archived));
+    setShowArchive(false);
+    pushToast("アーカイブを空にしました");
+  };
+  const onPosted = (targets) => {
+    const postedToX = targets.some((a) => a.platform === "x");
+    if (postedToX && posting) {
+      setMemos((l) => l.map((x) => x.id === posting.id && !x.stats ? { ...x, stats: window.TW.genXStats() } : x));
+    }
+    pushToast(`${targets.length}件に投稿しました（デモ）`);
+  };
+
+  if (!userId) {
+    return <><LoginScreen onLogin={(id) => { setUserId(id); }} />{toastNode}</>;
+  }
+
+  return (
+    <div>
+      <TopBar query={query} onQuery={setQuery} userId={userId}
+        archivedCount={archivedList.length}
+        onLogout={() => { setUserId(null); }}
+        onShowArchive={() => setShowArchive(true)}
+        onManageAccounts={() => setShowAccounts(true)} />
+
+      <FilterBar
+        period={period} onPeriod={(k) => { setPeriod(k); setCustom(null); }}
+        custom={custom} onCustom={(r) => { setCustom(r); setPeriod(null); }}
+        random={random} onRandom={() => { setRandom((v) => !v); setShuffleKey((k) => k + 1); }}
+        onReshuffle={() => setShuffleKey((k) => k + 1)}
+      />
+
+      {!filtering && !random && <Composer onCreate={create} accounts={accounts} />}
+      {(filtering || random) && <div style={{ height: 14 }} />}
+
+      <MemoGrid memos={display} query={query}
+        onOpen={setEditing} onPost={setPosting} onArchive={archiveMemo}
+        emptyNote={filtering ? "条件に合うメモはありません" : "最初のメモを書いてみましょう"}
+      />
+
+      {editing && (
+        <EditorModal memo={memos.find((m) => m.id === editing.id) || editing}
+          onSave={saveMemo} onArchive={archiveMemo} onPost={(m) => { setEditing(null); setPosting(m); }}
+          onClose={() => setEditing(null)} />
+      )}
+      {posting && (
+        <PostDialog memo={posting} accounts={accounts}
+          onClose={() => setPosting(null)} onPosted={onPosted} />
+      )}
+      {showAccounts && (
+        <AccountsModal accounts={accounts} setAccounts={setAccounts} onClose={() => setShowAccounts(false)} />
+      )}
+      {showArchive && (
+        <ArchiveModal archived={archivedList}
+          onRestore={restoreMemo} onPurge={purgeMemo} onPurgeAll={purgeAllArchived}
+          onClose={() => setShowArchive(false)} />
+      )}
+
+      {toastNode}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
