@@ -4,7 +4,6 @@ import path from 'path';
 import dotenv from 'dotenv';
 import { authRouter } from './routes/auth';
 import { memosRouter } from './routes/memos';
-import { accountsRouter } from './routes/accounts';
 
 dotenv.config();
 
@@ -16,7 +15,6 @@ app.use(cookieParser());
 
 app.use('/api/auth', authRouter);
 app.use('/api/memos', memosRouter);
-app.use('/api/accounts', accountsRouter);
 
 // Serve built frontend in production
 if (process.env.NODE_ENV === 'production') {

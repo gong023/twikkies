@@ -10,10 +10,9 @@ interface Props {
   archivedCount: number;
   onLogout: () => void;
   onShowArchive: () => void;
-  onManageAccounts: () => void;
 }
 
-export function TopBar({ query, onQuery, userId, archivedCount, onLogout, onShowArchive, onManageAccounts }: Props) {
+export function TopBar({ query, onQuery, userId, archivedCount, onLogout, onShowArchive }: Props) {
   const [umenu, setUmenu] = useState(false);
 
   return (
@@ -63,7 +62,6 @@ export function TopBar({ query, onQuery, userId, archivedCount, onLogout, onShow
               { label: userId, icon: 'user' },
               { sep: true },
               { label: `アーカイブ${archivedCount ? `（${archivedCount}）` : ''}`, icon: 'archive', onClick: onShowArchive },
-              { label: '投稿アカウント設定', icon: 'settings', onClick: onManageAccounts },
               { sep: true },
               { label: 'ログアウト', icon: 'logout', onClick: onLogout },
             ]} />

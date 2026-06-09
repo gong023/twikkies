@@ -1,14 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { Icon } from './ui/Icon';
 import { PlatMark } from './ui/PlatMark';
-import type { Memo, SocialAccount } from '../types';
+import type { Memo } from '../types';
+
+const INTENT_URL: Record<string, string> = {
+  x: 'https://x.com/intent/tweet',
+  bluesky: 'https://bsky.app/intent/compose',
+};
 
 interface Props {
-  onCreate: (data: { text: string; image?: Memo['image'] }, postTargets: SocialAccount[]) => void;
-  accounts: SocialAccount[];
+  onCreate: (data: { text: string; image?: Memo['image'] }, platforms: string[]) => void;
 }
 
-export function Composer({ onCreate, accounts }: Props) {
+export function Composer({ onCreate }: Props) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
   const [img, setImg] = useState<Memo['image'] | null>(null);
@@ -22,10 +26,16 @@ export function Composer({ onCreate, accounts }: Props) {
   const reset = () => { setText(''); setImg(null); setTargets([]); setShowPost(false); setOpen(false); };
   const commit = () => {
     const t = text.trim();
-    if (t || img) onCreate({ text: t, image: img ?? undefined }, accounts.filter(a => targets.includes(a.id)));
+    if (t || img) {
+      targets.forEach(pl => {
+        const base = INTENT_URL[pl];
+        if (base) window.open(`${base}?text=${encodeURIComponent(t)}`, '_blank', 'noopener');
+      });
+      onCreate({ text: t, image: img ?? undefined }, targets);
+    }
     reset();
   };
-  const toggleTarget = (id: string) => setTargets(l => l.includes(id) ? l.filter(x => x !== id) : [...l, id]);
+  const toggleTarget = (pl: string) => setTargets(l => l.includes(pl) ? l.filter(x => x !== pl) : [...l, pl]);
 
   return (
     <div style={{ maxWidth: 632, margin: '26px auto 30px', padding: '0 24px' }}>
@@ -65,24 +75,24 @@ export function Composer({ onCreate, accounts }: Props) {
                 padding: '5px 2px', color: targets.length ? 'var(--accent-ink)' : 'var(--ink-3)', fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap',
               }}>
                 <Icon name="send" size={15} />
-                {targets.length ? `${targets.length}件のアカウントに同時投稿` : '同時にSNSへ投稿'}
+                {targets.length ? `${targets.length}件に同時投稿` : '同時にSNSへ投稿'}
                 <span style={{ display: 'inline-flex', transform: showPost ? 'rotate(180deg)' : 'none', transition: 'transform .15s ease', color: 'var(--ink-3)' }}>
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
                 </span>
               </button>
               {showPost && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, padding: '8px 2px 4px' }}>
-                  {accounts.map(a => {
-                    const on = targets.includes(a.id);
+                  {(['x', 'bluesky'] as const).map(pl => {
+                    const on = targets.includes(pl);
                     return (
-                      <button key={a.id} onClick={() => toggleTarget(a.id)} style={{
+                      <button key={pl} onClick={() => toggleTarget(pl)} style={{
                         display: 'inline-flex', alignItems: 'center', gap: 8, height: 34, padding: '0 11px 0 8px',
                         borderRadius: 999, transition: 'all .12s ease', whiteSpace: 'nowrap', cursor: 'pointer',
                         border: on ? '1.5px solid var(--accent-2)' : '1px solid var(--line-2)',
                         background: on ? 'var(--accent-wash)' : 'var(--surface)',
                       }}>
-                        <PlatMark platform={a.platform} size={20} />
-                        <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink)' }}>{a.name}</span>
+                        <PlatMark platform={pl} size={20} />
+                        <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink)' }}>{pl === 'x' ? 'X' : 'Bluesky'}</span>
                         {on && <span style={{ color: 'var(--accent-ink)', display: 'flex' }}><Icon name="check" size={14} stroke={2.4} /></span>}
                       </button>
                     );

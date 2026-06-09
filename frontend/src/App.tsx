@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { api } from './api';
-import { Memo, SocialAccount, User, PeriodKey, periodRange, inRange, shuffle, genXStats } from './types';
+import { Memo, User, PeriodKey, periodRange, inRange, shuffle, genXStats } from './types';
 import { useToasts } from './hooks/useToasts';
 import { Login } from './components/Login';
 import { TopBar } from './components/TopBar';
@@ -10,13 +10,11 @@ import { MemoGrid } from './components/MemoCard';
 import { EditorModal } from './components/EditorModal';
 import { PostDialog } from './components/PostDialog';
 import { ArchiveModal } from './components/ArchiveModal';
-import { AccountsModal } from './components/AccountsModal';
 
 export default function App() {
   const [user, setUser] = useState<User | null | undefined>(undefined);
   const [memos, setMemos] = useState<Memo[]>([]);
   const [archived, setArchived] = useState<Memo[]>([]);
-  const [accounts, setAccounts] = useState<SocialAccount[]>([]);
 
   const [query, setQuery] = useState('');
   const [period, setPeriod] = useState<PeriodKey | null>(null);
@@ -26,19 +24,16 @@ export default function App() {
 
   const [editing, setEditing] = useState<Memo | null>(null);
   const [posting, setPosting] = useState<Memo | null>(null);
-  const [showAccounts, setShowAccounts] = useState(false);
   const [showArchive, setShowArchive] = useState(false);
 
   const { pushToast, toastNode } = useToasts();
 
   const loadData = useCallback(async () => {
-    const [memoList, accountList, archivedList] = await Promise.all([
+    const [memoList, archivedList] = await Promise.all([
       api.memos.list(),
-      api.accounts.list(),
       api.memos.archived(),
     ]);
     setMemos(memoList);
-    setAccounts(accountList);
     setArchived(archivedList);
   }, []);
 
@@ -71,11 +66,11 @@ export default function App() {
 
   const filtering = !!(query.trim() || period || custom);
 
-  const create = async (data: { text: string; image?: Memo['image'] }, postTargets: SocialAccount[]) => {
-    const postedToX = postTargets.some(a => a.platform === 'x');
+  const create = async (data: { text: string; image?: Memo['image'] }, platforms: string[]) => {
+    const postedToX = platforms.includes('x');
     const memo = await api.memos.create({ text: data.text, image: data.image, stats: postedToX ? genXStats() : undefined });
     setMemos(l => [memo, ...l]);
-    pushToast(postTargets.length ? `メモを追加し、${postTargets.length}件に投稿しました（デモ）` : 'メモを追加しました');
+    pushToast(platforms.length ? `メモを追加し、${platforms.length}件に投稿しました` : 'メモを追加しました');
   };
 
   const saveMemo = async (m: Memo) => {
@@ -110,23 +105,13 @@ export default function App() {
     pushToast('アーカイブを空にしました');
   };
 
-  const onPosted = async (targets: SocialAccount[]) => {
-    const postedToX = targets.some(a => a.platform === 'x');
+  const onPosted = async (platforms: string[]) => {
+    const postedToX = platforms.includes('x');
     if (postedToX && posting && !posting.stats) {
       const updated = await api.memos.update(posting.id, { text: posting.text, image: posting.image, stats: genXStats() });
       setMemos(l => l.map(x => x.id === updated.id ? updated : x));
     }
-    pushToast(`${targets.length}件に投稿しました（デモ）`);
-  };
-
-  const addAccount = async (data: { platform: string; name: string; handle: string }) => {
-    const acc = await api.accounts.add(data);
-    setAccounts(l => [...l, acc]);
-  };
-
-  const removeAccount = async (id: string) => {
-    await api.accounts.remove(id);
-    setAccounts(l => l.filter(a => a.id !== id));
+    pushToast(`${platforms.length}件に投稿しました`);
   };
 
   const handleLogin = async (username: string, password: string) => {
@@ -138,7 +123,7 @@ export default function App() {
   const handleLogout = async () => {
     await api.auth.logout();
     setUser(null);
-    setMemos([]); setArchived([]); setAccounts([]);
+    setMemos([]); setArchived([]);
   };
 
   if (user === undefined) {
@@ -158,8 +143,7 @@ export default function App() {
       <TopBar query={query} onQuery={setQuery} userId={user.username}
         archivedCount={archived.length}
         onLogout={handleLogout}
-        onShowArchive={() => setShowArchive(true)}
-        onManageAccounts={() => setShowAccounts(true)} />
+        onShowArchive={() => setShowArchive(true)} />
 
       <FilterBar
         period={period} onPeriod={k => { setPeriod(k); setCustom(null); }}
@@ -168,7 +152,7 @@ export default function App() {
         onReshuffle={() => setShuffleKey(k => k + 1)}
       />
 
-      {!filtering && !random && <Composer onCreate={create} accounts={accounts} />}
+      {!filtering && !random && <Composer onCreate={create} />}
       {(filtering || random) && <div style={{ height: 14 }} />}
 
       <MemoGrid memos={display} query={query}
@@ -183,12 +167,8 @@ export default function App() {
           onClose={() => setEditing(null)} />
       )}
       {posting && (
-        <PostDialog memo={posting} accounts={accounts}
+        <PostDialog memo={posting}
           onClose={() => setPosting(null)} onPosted={onPosted} />
-      )}
-      {showAccounts && (
-        <AccountsModal accounts={accounts} onAdd={addAccount} onRemove={removeAccount}
-          onClose={() => setShowAccounts(false)} />
       )}
       {showArchive && (
         <ArchiveModal archived={archived}

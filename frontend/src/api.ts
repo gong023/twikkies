@@ -1,4 +1,4 @@
-import type { Memo, SocialAccount, User } from './types';
+import type { Memo, User } from './types';
 
 async function req<T>(path: string, opts?: RequestInit): Promise<T> {
   const res = await fetch('/api' + path, {
@@ -30,11 +30,5 @@ export const api = {
     archive: (id: string) => req<Memo>(`/memos/${id}/archive`, { method: 'POST' }),
     restore: (id: string) => req<Memo>(`/memos/${id}/restore`, { method: 'POST' }),
     delete: (id: string) => req<{ ok: boolean }>(`/memos/${id}`, { method: 'DELETE' }),
-  },
-  accounts: {
-    list: () => req<SocialAccount[]>('/accounts'),
-    add: (data: { platform: string; name: string; handle: string }) =>
-      req<SocialAccount>('/accounts', { method: 'POST', body: JSON.stringify(data) }),
-    remove: (id: string) => req<{ ok: boolean }>(`/accounts/${id}`, { method: 'DELETE' }),
   },
 };

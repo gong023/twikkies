@@ -9,13 +9,6 @@ export interface Memo {
   updatedAt: string;
 }
 
-export interface SocialAccount {
-  id: string;
-  platform: 'x' | 'bluesky';
-  name: string;
-  handle: string;
-}
-
 export interface User {
   id: string;
   username: string;
