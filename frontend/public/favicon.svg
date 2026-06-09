@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <clipPath id="c">
+      <rect width="32" height="32" rx="8"/>
+    </clipPath>
+  </defs>
+  <!-- amber rounded square with subtle inner stroke -->
+  <rect width="32" height="32" rx="8" fill="#E5B558"/>
+  <rect width="32" height="32" rx="8" fill="none" stroke="#D79A3F" stroke-width="1.5" stroke-opacity="0.6" clip-path="url(#c)"/>
+  <!-- bottom-right corner cut (42% of 32 = 13.4px) -->
+  <polygon points="18.6,32 32,18.6 32,32" fill="#F5F2E8" clip-path="url(#c)"/>
+</svg>
