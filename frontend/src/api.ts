@@ -18,6 +18,11 @@ export const api = {
     me: () => req<User>('/auth/me'),
     login: (username: string, password: string) =>
       req<User>('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
+    addSession: (username: string, password: string) =>
+      req<User>('/auth/add-session', { method: 'POST', body: JSON.stringify({ username, password }) }),
+    sessions: () => req<User[]>('/auth/sessions'),
+    switch: (username: string) =>
+      req<User>('/auth/switch', { method: 'POST', body: JSON.stringify({ username }) }),
     logout: () => req<{ ok: boolean }>('/auth/logout', { method: 'POST' }),
   },
   memos: {

@@ -10,11 +10,14 @@ import { MemoGrid } from './components/MemoCard';
 import { EditorModal } from './components/EditorModal';
 import { PostDialog } from './components/PostDialog';
 import { ArchiveModal } from './components/ArchiveModal';
+import { AddAccountModal } from './components/AddAccountModal';
 
 export default function App() {
   const [user, setUser] = useState<User | null | undefined>(undefined);
+  const [sessions, setSessions] = useState<User[]>([]);
   const [memos, setMemos] = useState<Memo[]>([]);
   const [archived, setArchived] = useState<Memo[]>([]);
+  const [showAddAccount, setShowAddAccount] = useState(false);
 
   const [query, setQuery] = useState('');
   const [period, setPeriod] = useState<PeriodKey | null>(null);
@@ -41,6 +44,7 @@ export default function App() {
     api.auth.me()
       .then(u => { setUser(u); loadData(); })
       .catch(() => setUser(null));
+    api.auth.sessions().then(setSessions).catch(() => {});
   }, [loadData]);
 
   const filtered = useMemo(() => {
@@ -117,13 +121,28 @@ export default function App() {
   const handleLogin = async (username: string, password: string) => {
     const u = await api.auth.login(username, password);
     setUser(u);
-    await loadData();
+    const [newSessions] = await Promise.all([api.auth.sessions(), loadData()]);
+    setSessions(newSessions);
+  };
+
+  const handleAddSession = async (username: string, password: string) => {
+    await api.auth.addSession(username, password);
+    const newSessions = await api.auth.sessions();
+    setSessions(newSessions);
+  };
+
+  const handleSwitchAccount = async (username: string) => {
+    const u = await api.auth.switch(username);
+    setUser(u);
+    const [newSessions] = await Promise.all([api.auth.sessions(), loadData()]);
+    setSessions(newSessions);
   };
 
   const handleLogout = async () => {
     await api.auth.logout();
     setUser(null);
     setMemos([]); setArchived([]);
+    setSessions([]);
   };
 
   if (user === undefined) {
@@ -142,6 +161,9 @@ export default function App() {
     <div>
       <TopBar query={query} onQuery={setQuery} userId={user.username}
         archivedCount={archived.length}
+        sessions={sessions}
+        onSwitch={handleSwitchAccount}
+        onAddAccount={() => setShowAddAccount(true)}
         onLogout={handleLogout}
         onShowArchive={() => setShowArchive(true)} />
 
@@ -174,6 +196,12 @@ export default function App() {
         <ArchiveModal archived={archived}
           onRestore={restoreMemo} onPurge={purgeMemo} onPurgeAll={purgeAllArchived}
           onClose={() => setShowArchive(false)} />
+      )}
+
+      {showAddAccount && (
+        <AddAccountModal
+          onAdd={handleAddSession}
+          onClose={() => setShowAddAccount(false)} />
       )}
 
       {toastNode}

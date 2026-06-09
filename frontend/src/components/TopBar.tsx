@@ -1,19 +1,43 @@
 import { useState } from 'react';
 import { Icon } from './ui/Icon';
 import { Logo } from './ui/Logo';
-import { Menu } from './ui/Menu';
+import { Menu, MenuItem } from './ui/Menu';
+import type { User } from '../types';
 
 interface Props {
   query: string;
   onQuery: (q: string) => void;
   userId: string;
   archivedCount: number;
+  sessions: User[];
+  onSwitch: (username: string) => void;
+  onAddAccount: () => void;
   onLogout: () => void;
   onShowArchive: () => void;
 }
 
-export function TopBar({ query, onQuery, userId, archivedCount, onLogout, onShowArchive }: Props) {
+export function TopBar({ query, onQuery, userId, archivedCount, sessions, onSwitch, onAddAccount, onLogout, onShowArchive }: Props) {
   const [umenu, setUmenu] = useState(false);
+
+  const menuItems: MenuItem[] = [
+    { label: userId, icon: 'user' },
+    { sep: true },
+  ];
+
+  if (sessions.length > 0) {
+    for (const s of sessions) {
+      menuItems.push({ label: s.username, icon: 'repost', onClick: () => onSwitch(s.username) });
+    }
+    menuItems.push({ sep: true });
+  }
+
+  menuItems.push(
+    { label: 'アカウントを追加', icon: 'plus', onClick: onAddAccount },
+    { sep: true },
+    { label: `アーカイブ${archivedCount ? `（${archivedCount}）` : ''}`, icon: 'archive', onClick: onShowArchive },
+    { sep: true },
+    { label: 'ログアウト', icon: 'logout', onClick: onLogout },
+  );
 
   return (
     <header style={{
@@ -58,13 +82,7 @@ export function TopBar({ query, onQuery, userId, archivedCount, onLogout, onShow
             fontFamily: 'var(--font-mono)', textTransform: 'uppercase', cursor: 'pointer',
           }} title={userId}>{(userId || 'u').slice(0, 1)}</button>
           {umenu && (
-            <Menu onClose={() => setUmenu(false)} style={{ top: 46, right: 0, minWidth: 200 }} items={[
-              { label: userId, icon: 'user' },
-              { sep: true },
-              { label: `アーカイブ${archivedCount ? `（${archivedCount}）` : ''}`, icon: 'archive', onClick: onShowArchive },
-              { sep: true },
-              { label: 'ログアウト', icon: 'logout', onClick: onLogout },
-            ]} />
+            <Menu onClose={() => setUmenu(false)} style={{ top: 46, right: 0, minWidth: 200 }} items={menuItems} />
           )}
         </div>
       </div>
