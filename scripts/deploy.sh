@@ -16,7 +16,10 @@ echo "==> Building backend..."
 npm run build
 
 echo "==> Running migrations..."
-npm run migrate
+DATABASE_URL=$(grep '^DATABASE_URL=' "$PROJ/backend/.env" | sed 's/^DATABASE_URL=//' | sed 's/[?&]uselibpqcompat=[^&]*//')
+for f in "$PROJ"/backend/src/db/migrations/*.sql; do
+  psql "$DATABASE_URL" -f "$f"
+done
 
 echo "==> Installing frontend dependencies..."
 cd "$PROJ/frontend"
