@@ -27,23 +27,23 @@ memosRouter.get('/', async (req: AuthRequest, res) => {
 });
 
 memosRouter.post('/', async (req: AuthRequest, res) => {
-  const { text, image, stats } = req.body as { text?: string; image?: unknown; stats?: unknown };
+  const { text, images, stats } = req.body as { text?: string; images?: string[]; stats?: unknown };
   try {
     const { rows } = await db.query(
-      'INSERT INTO memos (user_id, text, image, stats) VALUES ($1, $2, $3, $4) RETURNING *',
-      [req.userId, text ?? '', image ?? null, stats ?? null]
+      'INSERT INTO memos (user_id, text, images, stats) VALUES ($1, $2, $3, $4) RETURNING *',
+      [req.userId, text ?? '', JSON.stringify(images ?? []), stats ?? null]
     );
     res.status(201).json(toMemo(rows[0]));
   } catch (err) { console.error(err); res.status(500).json({ message: 'Server error' }); }
 });
 
 memosRouter.put('/:id', async (req: AuthRequest, res) => {
-  const { text, image, stats } = req.body as { text?: string; image?: unknown; stats?: unknown };
+  const { text, images, stats } = req.body as { text?: string; images?: string[]; stats?: unknown };
   try {
     const { rows } = await db.query(
-      `UPDATE memos SET text = $1, image = $2, stats = $3, updated_at = NOW()
+      `UPDATE memos SET text = $1, images = $2, stats = $3, updated_at = NOW()
        WHERE id = $4 AND user_id = $5 RETURNING *`,
-      [text ?? '', image ?? null, stats ?? null, req.params.id, req.userId]
+      [text ?? '', JSON.stringify(images ?? []), stats ?? null, req.params.id, req.userId]
     );
     if (!rows[0]) { res.status(404).json({ message: 'Not found' }); return; }
     res.json(toMemo(rows[0]));
@@ -85,7 +85,7 @@ function toMemo(row: Record<string, unknown>) {
   return {
     id: row.id,
     text: row.text,
-    image: row.image ?? undefined,
+    images: (row.images as string[] | null) ?? [],
     stats: row.stats ?? undefined,
     archived: row.archived,
     archivedAt: row.archived_at ? (row.archived_at as Date).toISOString() : undefined,

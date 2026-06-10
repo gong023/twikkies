@@ -1,40 +1,76 @@
 import { useState, useRef, useEffect } from 'react';
 import { Icon } from './ui/Icon';
 import { PlatMark } from './ui/PlatMark';
-import type { Memo } from '../types';
+import { api } from '../api';
 
 const INTENT_URL: Record<string, string> = {
   x: 'https://x.com/intent/tweet',
   bluesky: 'https://bsky.app/intent/compose',
 };
 
+interface ImgSlot {
+  preview: string;
+  id?: string;
+}
+
 interface Props {
-  onCreate: (data: { text: string; image?: Memo['image'] }, platforms: string[]) => void;
+  onCreate: (data: { text: string; images: string[] }, platforms: string[]) => void;
 }
 
 export function Composer({ onCreate }: Props) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
-  const [img, setImg] = useState<Memo['image'] | null>(null);
+  const [imgs, setImgs] = useState<ImgSlot[]>([]);
   const [targets, setTargets] = useState<string[]>([]);
   const [showPost, setShowPost] = useState(false);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const uploading = imgs.some(s => !s.id);
 
   useEffect(() => { if (open) taRef.current?.focus(); }, [open]);
 
   const grow = (el: HTMLTextAreaElement) => { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 320) + 'px'; };
-  const reset = () => { setText(''); setImg(null); setTargets([]); setShowPost(false); setOpen(false); };
+
+  const reset = () => {
+    imgs.forEach(s => { if (s.preview.startsWith('blob:')) URL.revokeObjectURL(s.preview); });
+    setText(''); setImgs([]); setTargets([]); setShowPost(false); setOpen(false);
+  };
+
   const commit = () => {
+    if (uploading) return;
     const t = text.trim();
-    if (t || img) {
+    const imageIds = imgs.map(s => s.id!);
+    if (t || imageIds.length) {
       targets.forEach(pl => {
         const base = INTENT_URL[pl];
         if (base) window.open(`${base}?text=${encodeURIComponent(t)}`, '_blank', 'noopener');
       });
-      onCreate({ text: t, image: img ?? undefined }, targets);
+      onCreate({ text: t, images: imageIds }, targets);
     }
     reset();
   };
+
+  const handleFiles = (files: FileList | null) => {
+    if (!files?.length) return;
+    Array.from(files).forEach(async file => {
+      const preview = URL.createObjectURL(file);
+      setImgs(prev => [...prev, { preview }]);
+      try {
+        const { id } = await api.uploads.upload(file);
+        setImgs(prev => prev.map(s => s.preview === preview ? { ...s, id } : s));
+      } catch {
+        setImgs(prev => prev.filter(s => s.preview !== preview));
+      }
+    });
+    if (fileRef.current) fileRef.current.value = '';
+  };
+
+  const removeImg = (preview: string) => {
+    if (preview.startsWith('blob:')) URL.revokeObjectURL(preview);
+    setImgs(prev => prev.filter(s => s.preview !== preview));
+  };
+
   const toggleTarget = (pl: string) => setTargets(l => l.includes(pl) ? l.filter(x => x !== pl) : [...l, pl]);
 
   return (
@@ -55,12 +91,36 @@ export function Composer({ onCreate }: Props) {
           </button>
         ) : (
           <div style={{ padding: 14 }}>
-            {img && (
-              <div className="imgph" style={{ aspectRatio: '16 / 7', borderRadius: 9, marginBottom: 10, borderBottom: 'none', border: '1px solid var(--line)' }}>
-                <span>{img.label || '添付画像'}</span>
-                <button className="iconbtn" onClick={() => setImg(null)} style={{ position: 'absolute', top: 6, right: 6, width: 28, height: 28, background: 'color-mix(in oklab, var(--surface) 80%, transparent)' }}><Icon name="close" size={15} /></button>
+            {imgs.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
+                {imgs.map(s => (
+                  <div key={s.preview} style={{ position: 'relative', width: 80, height: 80 }}>
+                    <img
+                      src={s.preview}
+                      alt=""
+                      style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--line)', display: 'block' }}
+                    />
+                    {!s.id && (
+                      <div style={{
+                        position: 'absolute', inset: 0, borderRadius: 8,
+                        background: 'color-mix(in oklab, var(--surface) 60%, transparent)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <div style={{ width: 16, height: 16, border: '2px solid var(--accent)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                      </div>
+                    )}
+                    <button
+                      className="iconbtn"
+                      onClick={() => removeImg(s.preview)}
+                      style={{ position: 'absolute', top: -6, right: -6, width: 22, height: 22, background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '50%' }}
+                    >
+                      <Icon name="close" size={11} />
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
+
             <textarea ref={taRef} className="field" value={text}
               onInput={e => grow(e.currentTarget)}
               onChange={e => setText(e.target.value)}
@@ -102,18 +162,39 @@ export function Composer({ onCreate }: Props) {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
-              <button className="iconbtn" title="画像を添付" onClick={() => setImg({ ph: true, label: '添付画像', ratio: 0.6 })}><Icon name="image" size={19} /></button>
+              <button
+                className="iconbtn"
+                title="画像を添付"
+                onClick={() => fileRef.current?.click()}
+                style={{ color: imgs.length ? 'var(--accent-ink)' : undefined }}
+              >
+                <Icon name="image" size={19} />
+              </button>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                 <span className="mono" style={{ fontSize: 11, color: 'var(--ink-3)', marginRight: 4 }}>⌘↵ で保存</span>
                 <button className="btn btn-ghost" style={{ height: 36 }} onClick={reset}>キャンセル</button>
-                <button className={`btn ${targets.length ? 'btn-accent' : 'btn-primary'}`} style={{ height: 36 }} onClick={commit} disabled={!text.trim() && !img}>
-                  {targets.length ? '保存して投稿' : '保存'}
+                <button
+                  className={`btn ${targets.length ? 'btn-accent' : 'btn-primary'}`}
+                  style={{ height: 36 }}
+                  onClick={commit}
+                  disabled={(!text.trim() && !imgs.length) || uploading}
+                >
+                  {uploading ? 'アップロード中…' : targets.length ? '保存して投稿' : '保存'}
                 </button>
               </div>
             </div>
           </div>
         )}
       </div>
+
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*,.heic,.heif"
+        multiple
+        style={{ display: 'none' }}
+        onChange={e => handleFiles(e.target.files)}
+      />
     </div>
   );
 }

@@ -39,9 +39,26 @@ export function MemoCard({ memo, query, onOpen, onPost, onArchive }: Props) {
 
   return (
     <article className="memo" onClick={() => onOpen(memo)}>
-      {memo.image && (
-        <div className="imgph" style={{ aspectRatio: `1 / ${memo.image.ratio || 0.6}` }}>
-          <span>{memo.image.label || '画像'}</span>
+      {memo.images.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {memo.images.map((id, i) => (
+            <img
+              key={id}
+              src={`/api/images/${id}`}
+              alt=""
+              style={{
+                width: '100%',
+                display: 'block',
+                borderRadius: i === 0 && memo.images.length === 1
+                  ? '8px 8px 0 0'
+                  : i === 0
+                  ? '8px 8px 0 0'
+                  : i === memo.images.length - 1
+                  ? '0 0 0 0'
+                  : 0,
+              }}
+            />
+          ))}
         </div>
       )}
       <div className="memo-body">{highlight(memo.text, query)}</div>

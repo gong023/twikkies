@@ -15,6 +15,9 @@ npm ci
 echo "==> Building backend..."
 npm run build
 
+echo "==> Running migrations..."
+npm run migrate
+
 echo "==> Installing frontend dependencies..."
 cd "$PROJ/frontend"
 npm ci

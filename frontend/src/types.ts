@@ -1,7 +1,7 @@
 export interface Memo {
   id: string;
   text: string;
-  image?: { ph: boolean; label: string; ratio: number };
+  images: string[];
   stats?: { reposts: number; likes: number };
   archived: boolean;
   archivedAt?: string;

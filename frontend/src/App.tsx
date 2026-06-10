@@ -70,15 +70,15 @@ export default function App() {
 
   const filtering = !!(query.trim() || period || custom);
 
-  const create = async (data: { text: string; image?: Memo['image'] }, platforms: string[]) => {
+  const create = async (data: { text: string; images: string[] }, platforms: string[]) => {
     const postedToX = platforms.includes('x');
-    const memo = await api.memos.create({ text: data.text, image: data.image, stats: postedToX ? genXStats() : undefined });
+    const memo = await api.memos.create({ text: data.text, images: data.images, stats: postedToX ? genXStats() : undefined });
     setMemos(l => [memo, ...l]);
     pushToast(platforms.length ? `メモを追加し、${platforms.length}件に投稿しました` : 'メモを追加しました');
   };
 
   const saveMemo = async (m: Memo) => {
-    const updated = await api.memos.update(m.id, { text: m.text, image: m.image, stats: m.stats });
+    const updated = await api.memos.update(m.id, { text: m.text, images: m.images, stats: m.stats });
     setMemos(l => l.map(x => x.id === updated.id ? updated : x));
   };
 
@@ -112,7 +112,7 @@ export default function App() {
   const onPosted = async (platforms: string[]) => {
     const postedToX = platforms.includes('x');
     if (postedToX && posting && !posting.stats) {
-      const updated = await api.memos.update(posting.id, { text: posting.text, image: posting.image, stats: genXStats() });
+      const updated = await api.memos.update(posting.id, { text: posting.text, images: posting.images, stats: genXStats() });
       setMemos(l => l.map(x => x.id === updated.id ? updated : x));
     }
     pushToast(`${platforms.length}件に投稿しました`);
